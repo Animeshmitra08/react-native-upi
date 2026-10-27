@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ReactNativeUpiModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.upi.ReactNativeUpiModule"]
+  }
+}

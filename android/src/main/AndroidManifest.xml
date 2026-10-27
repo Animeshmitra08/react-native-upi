@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Required on Android 11+ so the app can see and launch UPI apps (Google Pay, PhonePe, Paytm, BHIM, ...). -->
+  <queries>
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="upi" />
+    </intent>
+  </queries>
+</manifest>
