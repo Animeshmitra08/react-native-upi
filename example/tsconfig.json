@@ -3,8 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "react-native-upi": ["../src/index"],
-      "react-native-upi/*": ["../src/*"]
+      "expo-upi": ["../src/index"],
+      "expo-upi/*": ["../src/*"]
     }
   }
 }

@@ -20,7 +20,7 @@ config.resolver.nodeModulesPaths = [
 ];
 
 config.resolver.extraNodeModules = {
-  'react-native-upi': '..',
+  'expo-upi': '..',
 };
 
 config.watchFolders = [path.resolve(__dirname, '..')];

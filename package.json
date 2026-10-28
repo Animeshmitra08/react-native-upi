@@ -1,9 +1,38 @@
 {
-  "name": "react-native-upi",
-  "version": "1.0.3",
-  "description": "module for upi to work in all apps",
+  "name": "expo-upi",
+  "version": "1.0.4",
+  "description": "Make UPI payments through any UPI app (Google Pay, PhonePe, Paytm, BHIM) from React Native and Expo apps on Android",
+  "keywords": [
+    "react-native",
+    "expo",
+    "expo-upi",
+    "upi",
+    "upi-payment",
+    "upi-intent",
+    "payment",
+    "india",
+    "google-pay",
+    "phonepe",
+    "paytm",
+    "bhim",
+    "android"
+  ],
+  "homepage": "https://github.com/Animeshmitra08/react-native-upi#readme",
+  "bugs": {
+    "url": "https://github.com/Animeshmitra08/react-native-upi/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Animeshmitra08/react-native-upi.git"
+  },
+  "license": "MIT",
+  "author": "Animeshmitra08 <animeshmitra003@gmail.com> (https://github.com/Animeshmitra08)",
+  "type": "commonjs",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "directories": {
+    "example": "example"
+  },
   "scripts": {
     "build": "node internal/module_scripts/build.js",
     "clean": "node internal/module_scripts/clean.js",
@@ -13,20 +42,6 @@
     "open:ios": "node internal/module_scripts/open-ios.js",
     "open:android": "node internal/module_scripts/open-android.js"
   },
-  "keywords": [
-    "react-native",
-    "expo",
-    "react-native-upi",
-    "ReactNativeUpi"
-  ],
-  "repository": "https://github.com/Animeshmitra08/react-native-upi",
-  "bugs": {
-    "url": "https://github.com/Animeshmitra08/react-native-upi/issues"
-  },
-  "author": "Animeshmitra08 <animeshmitra003@gmail.com> (https://github.com/Animeshmitra08)",
-  "license": "MIT",
-  "homepage": "https://github.com/Animeshmitra08/react-native-upi#readme",
-  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@types/jest": "^29.2.1",
@@ -41,15 +56,15 @@
     "react-native": "0.82.1",
     "typescript": "^5.9.2"
   },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  },
   "jest": {
     "preset": "jest-expo",
     "roots": [
       "<rootDir>/src"
     ]
-  },
-  "peerDependencies": {
-    "expo": "*",
-    "react": "*",
-    "react-native": "*"
   }
 }

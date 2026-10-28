@@ -16,7 +16,7 @@ import {
   pay,
   UpiApp,
   UpiPaymentRequest,
-} from 'react-native-upi';
+} from 'expo-upi';
 
 export default function App() {
   const [pa, setPa] = useState('');

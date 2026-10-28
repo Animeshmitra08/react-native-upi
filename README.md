@@ -1,4 +1,4 @@
-# react-native-upi
+# expo-upi
 
 Send UPI payments to a **personal UPI ID** through **any UPI app** (Google Pay, PhonePe, Paytm, BHIM and others) in React Native and Expo apps on Android.
 
@@ -15,7 +15,7 @@ upi://pay?pa=test@upi&pn=Test&am=1.00&cu=INR
 | Platform | Supported |
 | -------- | --------- |
 | Android  | ✅        |
-| iOS      | ❌        |
+| iOS      | ❌ (same as web; `pay()` and `buildUpiUri()` fail with `NOT_SUPPORTED`) |
 | Web      | ❌ (`getInstalledUpiApps()` returns `[]`, `isUpiAppInstalled()` returns `false`, `pay()` and `buildUpiUri()` throw) |
 
 ## Requirements
@@ -27,7 +27,7 @@ upi://pay?pa=test@upi&pn=Test&am=1.00&cu=INR
 ## Installation
 
 ```sh
-npx expo install react-native-upi
+npx expo install expo-upi
 ```
 
 Then rebuild the native app:
@@ -44,7 +44,7 @@ The module's `AndroidManifest.xml` adds the `<queries>` entry that Android 11 an
 ### Make a payment
 
 ```tsx
-import { pay } from 'react-native-upi';
+import { pay } from 'expo-upi';
 
 const result = await pay({
   pa: 'friend@okhdfcbank',
@@ -58,7 +58,7 @@ No `app` is given, so Android shows a chooser and the user picks which UPI app t
 ### Open a specific UPI app
 
 ```tsx
-import { isUpiAppInstalled, pay, UpiApps } from 'react-native-upi';
+import { isUpiAppInstalled, pay, UpiApps } from 'expo-upi';
 
 if (isUpiAppInstalled(UpiApps.PHONEPE)) {
   const result = await pay({
@@ -73,7 +73,7 @@ if (isUpiAppInstalled(UpiApps.PHONEPE)) {
 ### Let the user pick from installed UPI apps
 
 ```tsx
-import { getInstalledUpiApps } from 'react-native-upi';
+import { getInstalledUpiApps } from 'expo-upi';
 
 const apps = getInstalledUpiApps();
 // [{ packageName: 'com.google.android.apps.nbu.paisa.user', name: 'Google Pay' },
@@ -113,7 +113,7 @@ To see exactly what your app sends to the UPI app, use any of these:
 **1. Preview the URI before paying.** `buildUpiUri()` returns the exact URI that `pay()` would send, without opening any app. It uses the same validation as `pay()`, so it throws the same errors.
 
 ```tsx
-import { buildUpiUri } from 'react-native-upi';
+import { buildUpiUri } from 'expo-upi';
 
 console.log(buildUpiUri({ pa: 'test@upi', pn: 'Test', amount: '1' }));
 // upi://pay?pa=test@upi&pn=Test&am=1.00&cu=INR
@@ -224,16 +224,20 @@ The currency is always `INR` (`cu=INR`). The `@` in `pa` is sent as-is. Other sp
 | `PAYMENT_IN_PROGRESS`   | `pay()` was called while another payment was still open. (`pay()` only) |
 | `NO_ACTIVITY`           | No Android activity is available to launch the UPI app from. (`pay()` only) |
 | `PAYMENT_START_FAILED`  | Android could not start the UPI intent. (`pay()` only) |
+| `NOT_SUPPORTED`         | Called on iOS, where UPI intents are not available. |
 
 ## Important notes
 
-- **UPI apps may block payments started from other apps.** Many UPI apps, Google Pay in particular, decline personal payments that another app starts through an intent. No money is debited when this happens. The error can be misleading, for example "You have exceeded the bank limit for this payment" or "declined for security reasons", even for ₹1. This is a restriction inside the UPI app and cannot be fixed in code. Leave `app` empty so the user can pick an app that allows it, and use the [debugging tools](#debugging) to confirm the URI is correct.
+- **UPI apps may block payments started from other apps.** Many UPI apps, Google Pay in particular, decline personal payments that another app starts through an intent. No money is debited when this happens. The error can be misleading, for example "You have exceeded the bank limit for this payment" or "declined for security reasons", even for ₹1. This is a restriction inside the UPI app and cannot be fixed in code. What helps:
+  - **Use a business UPI ID as `pa`.** A free business UPI ID from Paytm for Business, PhonePe Business or BharatPe is accepted much more often, and still pays into your bank account.
+  - **Fall back to a QR code.** Payments made by scanning a QR are not restricted the same way. Render the URI from `buildUpiUri()` as a QR code (for example with `react-native-qrcode-svg`) and let the payer scan it from their UPI app. The [example app](#example-app) does this when `pay()` fails.
+  - Leave `app` empty so the user can pick an app that allows it, and use the [debugging tools](#debugging) to confirm the URI is correct.
 - **Don't treat the result as proof of payment.** The result comes from the user's device and can be tampered with. If money or goods depend on it, confirm the transaction with the payee or their bank using `txnId`.
 - **The chosen app is not reported.** When the user picks from the chooser, the result does not say which app they used.
 
 ## Example app
 
-The [`example`](./example) folder contains a sample app. It shows a live preview of the UPI URI as you type, and lets you pick a UPI app or the chooser. To run it on a connected Android device:
+The [`example`](./example) folder contains a sample app. It shows a live preview of the UPI URI as you type, lets you pick a UPI app or the chooser, and shows a scan-to-pay QR code when the payment fails. To run it on a connected Android device:
 
 ```sh
 cd example
