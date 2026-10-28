@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
 
 import {
   buildUpiUri,
@@ -25,6 +26,7 @@ export default function App() {
   // null = show Android's UPI app chooser
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
   const [result, setResult] = useState<string>('');
+  const [showQr, setShowQr] = useState(false);
 
   const request: UpiPaymentRequest = {
     pa,
@@ -34,9 +36,12 @@ export default function App() {
   };
 
   // Preview of the exact URI that will be sent to the UPI app.
+  // null when the payment details are invalid.
+  let upiUri: string | null = null;
   let uriPreview: string;
   try {
-    uriPreview = buildUpiUri(request);
+    upiUri = buildUpiUri(request);
+    uriPreview = upiUri;
   } catch (error) {
     uriPreview = error instanceof Error ? error.message : String(error);
   }
@@ -52,6 +57,15 @@ export default function App() {
       setResult(
         JSON.stringify(paymentResult, null, 2)
       );
+
+      // UPI apps often block app-to-app payments to personal UPI IDs.
+      // Fall back to a QR code the payer can scan from their UPI app.
+      // SUBMITTED is skipped because the payment may still go through.
+      if (paymentResult.status === 'SUCCESS' || paymentResult.status === 'SUBMITTED') {
+        setShowQr(false);
+      } else {
+        setShowQr(true);
+      }
     } catch (error) {
       console.error('Payment failed:', error);
 
@@ -64,6 +78,9 @@ export default function App() {
           : String(error);
 
       setResult(code ? `${code}: ${message}` : message);
+
+      // e.g. NO_UPI_APP: the payer can still scan the QR from another phone.
+      setShowQr(true);
     }
   };
 
@@ -76,6 +93,11 @@ export default function App() {
 
         <Text style={styles.sectionTitle}>Payment details</Text>
         <TextInput style={styles.input} value={pa} onChangeText={setPa} placeholder="Payee UPI ID (e.g. name@okaxis)" autoCapitalize="none" />
+        <Text style={styles.hint}>
+          Tip: UPI apps often decline payments to a personal UPI ID with "declined for security
+          reasons" or "exceeded the bank limit". A business UPI ID (Paytm for Business, PhonePe
+          Business, BharatPe) works more reliably and still pays into your bank account.
+        </Text>
         <TextInput style={styles.input} value={pn} onChangeText={setPn} placeholder="Payee name" />
         <TextInput style={styles.input} value={amount} onChangeText={setAmount} placeholder="Amount" keyboardType="decimal-pad" />
 
@@ -106,6 +128,24 @@ export default function App() {
             disabled={!pa || !pn || !amount}
           />
         </View>
+
+        <View style={styles.button}>
+          <Button
+            title={showQr ? 'Hide QR code' : 'Show QR code'}
+            onPress={() => setShowQr(!showQr)}
+            disabled={!upiUri}
+          />
+        </View>
+
+        {showQr && upiUri && (
+          <View style={styles.qrContainer}>
+            <Text style={styles.sectionTitle}>Scan to pay</Text>
+            <QRCode value={upiUri} size={220} />
+            <Text style={styles.hint}>
+              Open any UPI app on the payer's phone, choose "Scan QR" and scan this code.
+            </Text>
+          </View>
+        )}
 
         <Text style={styles.resultTitle}>
           Result
@@ -199,6 +239,17 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 8,
     marginBottom: 8,
+  },
+
+  qrContainer: {
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+    marginTop: 8,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
   },
 
   resultTitle: {

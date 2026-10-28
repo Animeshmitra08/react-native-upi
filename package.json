@@ -1,6 +1,6 @@
 {
   "name": "react-native-upi",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "module for upi to work in all apps",
   "main": "build/index.js",
   "types": "build/index.d.ts",
